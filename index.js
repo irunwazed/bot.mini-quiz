@@ -583,16 +583,46 @@ async function editTampilan(jawaban) {
         btn.style.zIndex = '999';
         btn.style.position = 'relative';
       } else {
-        btn.style.opacity = '0.35';
-        btn.style.filter = 'grayscale(60%)';
-        btn.style.transition = 'all 0.3s ease';
+        // btn.style.opacity = '0.35';
+        // btn.style.filter = 'grayscale(60%)';
+        // btn.style.transition = 'all 0.3s ease';
       }
     });
   }, jawaban);
 }
 
-
-
+async function showMessage(message) {
+  await page.evaluate((msg) => {
+    const BANNER_ID = 'bot-message-banner';
+    let banner = document.getElementById(BANNER_ID);
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = BANNER_ID;
+      banner.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999999;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 30px rgba(34,197,94,0.6);
+        max-width: 80vw;
+        text-align: center;
+        font-family: system-ui, -apple-system, sans-serif;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      `;
+      document.body.appendChild(banner);
+    }
+    banner.innerText = msg;
+    banner.style.opacity = '1';
+  }, String(message));
+}
 
 async function cmdOtomatisQuiz() {
   await ensurePage();
@@ -644,13 +674,14 @@ async function cmdOtomatisQuiz() {
       });
       console.log('');
 
-      text += `\nJawab soal berikut dengan mengisi jawabannya saja`
+      text += `\nJawab soal berikut dengan mengisi jawabannya saja yang ada di opsi`
 
       let reply = await askClaude(text)
 
       console.log(`Berikut jawabannya : ${ reply }`)
 
       await editTampilan(reply)
+      await showMessage(reply)
       console.log('[OK]  Tampilan jawaban di-highlight.')
     }
 
